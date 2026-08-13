@@ -68,6 +68,7 @@ public class SqlMqIntegrationTests : IAsyncLifetime
         ";
 
         var command = new SqlCommand(pollSql, connection);
+        command.Parameters.AddWithValue("@QueueName", "order_queue");
         await connection.OpenAsync();
         
         using var reader = await command.ExecuteReaderAsync();
@@ -90,6 +91,7 @@ public class SqlMqIntegrationTests : IAsyncLifetime
         ";
         
         var command2 = new SqlCommand(pollSql2, connection2);
+        command2.Parameters.AddWithValue("@QueueName", "order_queue");
         using var reader2 = await command2.ExecuteReaderAsync();
         
         // Should be false because the first consumer has the lock and there's no other message
