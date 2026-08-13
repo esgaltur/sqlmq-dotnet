@@ -33,8 +33,11 @@ public class EmailService
 
 public class SqlMqUsageExampleTests : IAsyncLifetime
 {
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
+#pragma warning disable CS0618 // Type or member is obsolete
+    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
+        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
+#pragma warning restore CS0618 // Type or member is obsolete
 
     public async Task InitializeAsync()
     {

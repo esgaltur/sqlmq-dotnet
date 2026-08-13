@@ -2,7 +2,7 @@
 
 This document outlines the planned architecture, features, and milestones for the `SqlMq` project targeting .NET 10.
 
-## 🎯 Current Status: v0.0.1-alpha (Planning Phase)
+## 🎯 Current Status: v0.2.0-beta (Core Resiliency Complete)
 The project is currently in the architectural design phase. The core mechanisms rely heavily on `Microsoft.Data.SqlClient` and MS SQL Server's native `READPAST` and `UPDLOCK` hints to provide safe concurrent polling.
 
 ---
@@ -11,17 +11,17 @@ The project is currently in the architectural design phase. The core mechanisms 
 
 ### Milestone 1: Core Polling & Concurrency (v0.1.0)
 *Focus: Establish the foundational database schema, background service, and robust lock-free polling.*
-- [ ] **Schema Auto-Provisioning:** Implement an initializer that runs `CREATE TABLE` scripts for the main queue and idempotency tracking.
-- [ ] **The Polling Engine:** Build an `IHostedService` that continuously executes `SELECT TOP(X) ... WITH (UPDLOCK, READPAST)` queries.
-- [ ] **`ISqlMqTemplate` interface:** Basic `.SendAsync()` methods to serialize payloads via `System.Text.Json` and `INSERT` them.
-- [ ] **`[SqlMqListener]` Attribute:** Reflection and source-generator logic to discover consumer methods and bind them to the polling engine.
+- [x] **Schema Auto-Provisioning:** Implement an initializer that runs `CREATE TABLE` scripts for the main queue and idempotency tracking.
+- [x] **The Polling Engine:** Build an `IHostedService` that continuously executes `SELECT TOP(X) ... WITH (UPDLOCK, READPAST)` queries.
+- [x] **`ISqlMqTemplate` interface:** Basic `.SendAsync()` methods to serialize payloads via `System.Text.Json` and `INSERT` them.
+- [x] **`[SqlMqListener]` Attribute:** Reflection and source-generator logic to discover consumer methods and bind them to the polling engine.
 
 ### Milestone 2: Transactional Outbox & Resiliency (v0.2.0)
 *Focus: Ensure exactly-once delivery and EF Core integration.*
-- [ ] **EF Core Integration:** Provide an extension method (e.g., `services.AddSqlMqEntityFrameworkCore()`) to automatically enlist message sending into the current `DbContext` transaction.
+- [x] **EF Core Integration:** Provide an extension method (e.g., `services.AddSqlMqEntityFrameworkCore()`) to automatically enlist message sending into the current `DbContext` transaction.
 - [ ] **Idempotency Repository:** Introduce a secondary tracking table to deduplicate messages via their unique Message ID.
-- [ ] **Dead Letter Queue (DLQ):** Automatically move messages to a `sqlmq_messages_dlq` table when `MaxRetries` is exhausted.
-- [ ] **Delayed Messaging:** Implement a `VisibleAfter` column to naturally support scheduled messages.
+- [x] **Dead Letter Queue (DLQ):** Automatically move messages to a `sqlmq_messages_dlq` table when `MaxRetries` is exhausted.
+- [x] **Delayed Messaging:** Implement a `VisibleAfter` column to naturally support scheduled messages.
 
 ### Milestone 3: Modern .NET 10 Features (v0.3.0)
 *Focus: Take full advantage of the .NET 10 ecosystem.*
