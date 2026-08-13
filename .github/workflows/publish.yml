@@ -1,0 +1,40 @@
+name: Publish NuGet to GitHub Packages
+
+on:
+  release:
+    types: [published]
+  # Alternatively, you can uncomment the lines below to publish on every push to master
+  # push:
+  #   branches: [ master ]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    # We need to grant the action permission to write packages to GitHub
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Pack
+      run: dotnet pack --configuration Release --no-build -o ./nuget_packages
+      
+    - name: Push to GitHub Packages
+      run: dotnet nuget push ./nuget_packages/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
