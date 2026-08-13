@@ -33,8 +33,7 @@ public class EmailService
 
 public class SqlMqUsageExampleTests : IAsyncLifetime
 {
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
     public async Task InitializeAsync()

@@ -9,8 +9,7 @@ namespace SqlMq.Tests;
 public class SqlMqIntegrationTests : IAsyncLifetime
 {
     // Spins up a real MS SQL Server 2022 instance in a Docker container
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
     public async Task InitializeAsync()
