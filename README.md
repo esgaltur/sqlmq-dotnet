@@ -5,7 +5,7 @@
 
 <br/>
 
-> 🚀 **Project Status: v0.2.0-beta (Core Resiliency Complete)**
+> 🚀 **Project Status: v1.0.2 (Stable)**
 > 
 > This library implements advanced enterprise messaging patterns (Outbox, Exponential Backoff, Dead Letter Queues) directly on top of Microsoft SQL Server. It is actively being built for .NET 10.
 
