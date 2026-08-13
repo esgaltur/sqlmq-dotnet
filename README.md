@@ -5,9 +5,9 @@
 
 <br/>
 
-> ⚠️ **Project Status: Planning (v0.0.1-alpha)**
+> 🚀 **Project Status: v0.2.0-beta (Core Resiliency Complete)**
 > 
-> This library implements advanced enterprise messaging patterns (Outbox, Idempotency, Exponential Backoff) directly on top of Microsoft SQL Server. It is currently in the planning and initial prototyping phase.
+> This library implements advanced enterprise messaging patterns (Outbox, Exponential Backoff, Dead Letter Queues) directly on top of Microsoft SQL Server. It is actively being built for .NET 10.
 
 ---
 
@@ -20,14 +20,11 @@ This library acts as a native .NET 10 integration leveraging standard SQL Server
 ## ✨ Features at a Glance
 
 - **Declarative Consumers:** Simply annotate methods with `[SqlMqListener("my_queue")]`.
-- **Transactional Outbox Built-in:** Send messages safely within your standard EF Core `DbContext` transactions or `TransactionScope`.
+- **Transactional Outbox Built-in:** Send messages safely within your standard EF Core `DbContext` transactions.
 - **High Concurrency:** Built on SQL Server's `READPAST` hint, allowing multiple workers to poll the same table without deadlocks.
 - **Poison Pill Handling:** Automatic routing to Dead Letter Queues (DLQ) after a configurable number of retries.
-- **Exponential Backoff:** Circuit-break failing external APIs by dynamically scaling visibility timeouts.
-- **Exactly-Once Delivery:** Built-in idempotency repository to prevent duplicate message processing.
-- **High Throughput Batching:** Process messages in bulk by accepting `List<T>` parameters.
+- **Exponential Backoff:** Circuit-break failing jobs by dynamically scaling visibility timeouts.
 - **Delayed Messaging:** Schedule work for the future natively.
-- **Day-2 Observability:** Deep integration with `System.Diagnostics.Metrics` and OpenTelemetry.
 - **Native AOT Ready:** Fully compatible with .NET 10 Native AOT for lightning-fast startup in Azure Functions or containerized workloads.
 
 ---
@@ -39,11 +36,12 @@ This library acts as a native .NET 10 integration leveraging standard SQL Server
 - Microsoft SQL Server 2017+ or Azure SQL
 
 ### 2. Dependency
-Add the NuGet package to your project (coming soon):
+SqlMq is published to GitHub Packages. Add the NuGet packages to your project:
 
 ```bash
 dotnet add package SqlMq
 dotnet add package SqlMq.DependencyInjection
+dotnet add package SqlMq.EntityFrameworkCore # Optional: For EF Core Outbox support
 ```
 
 ### 3. Configuration
@@ -57,7 +55,10 @@ builder.Services.AddSqlMq(options => {
     options.AutoCreateSchema = true; // Automatically creates queue tables on startup
     options.DefaultVisibilityTimeout = TimeSpan.FromSeconds(30);
     options.DefaultPollInterval = TimeSpan.FromMilliseconds(500);
-});
+}, typeof(Program).Assembly); // Scan assembly for [SqlMqListener]
+
+// Optional: Add EF Core integration
+builder.Services.AddSqlMqEntityFrameworkCore<ApplicationDbContext>();
 
 var app = builder.Build();
 app.Run();
@@ -67,12 +68,12 @@ app.Run();
 
 ## 🛠️ Core Concepts
 
-### Producing Messages
+### Producing Messages (Transactional Outbox)
 
-Inject `ISqlMqTemplate` into your services. The template automatically serializes your C# objects to JSON (using `System.Text.Json`).
+Inject `ISqlMqTemplate` into your services. If you configured EF Core integration, any messages sent will automatically enlist in the current `DbContext` transaction!
 
 ```csharp
-using SqlMq;
+using SqlMq.Abstractions;
 
 public class OrderService
 {
@@ -93,6 +94,7 @@ public class OrderService
         _dbContext.Orders.Add(order);
         await _dbContext.SaveChangesAsync();
 
+        // This message is only visible to consumers if the transaction successfully commits
         await _mqTemplate.SendAsync("order_queue", new OrderEvent(order.Id, "CREATED"));
         
         await transaction.CommitAsync();
@@ -130,20 +132,14 @@ using SqlMq.Attributes;
 public class OrderWorker
 {
     // Consume just the payload
-    [SqlMqListener(Queue = "order_queue", MaxRetries = 3)]
+    [SqlMqListener("order_queue")]
     public async Task HandleOrderEvent(OrderEvent evt)
     {
         Console.WriteLine($"Processing order: {evt.OrderId}");
+        
         // If this method returns normally, the message is deleted from the queue.
-        // If it throws an Exception, the message is unlocked and redelivered.
-    }
-
-    // Or consume the full metadata envelope for advanced scenarios
-    [SqlMqListener(Queue = "analytics_queue")]
-    public async Task HandleFullMessage(SqlMqMessage<AnalyticsEvent> message)
-    {
-        Console.WriteLine($"Message ID: {message.MessageId}");
-        Console.WriteLine($"Enqueued At: {message.EnqueuedAt}");
+        // If it throws an Exception, the message is unlocked, the retry count is incremented,
+        // and it is redelivered using exponential backoff.
     }
 }
 ```
