@@ -9,15 +9,20 @@ namespace SqlMq.Attributes;
 public sealed class SqlMqListenerAttribute : Attribute
 {
     /// <summary>
-    /// The name of the queue to poll.
+    /// The name of the queue to poll messages from.
     /// </summary>
     public string Queue { get; }
 
     /// <summary>
-    /// Maximum number of retries before moving the message to the DLQ (Dead Letter Queue).
+    /// The maximum number of times a message should be retried before being moved to the Dead Letter Queue.
+    /// Defaults to 5.
     /// </summary>
-    public int MaxRetries { get; set; } = 3;
+    public int MaxRetries { get; set; } = 5;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlMqListenerAttribute"/> class.
+    /// </summary>
+    /// <param name="queue">The name of the queue.</param>
     public SqlMqListenerAttribute(string queue)
     {
         if (string.IsNullOrWhiteSpace(queue))
