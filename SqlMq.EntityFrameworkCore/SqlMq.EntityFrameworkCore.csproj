@@ -13,7 +13,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
+    <Authors>esgaltur</Authors>
+    <Company>esgaltur</Company>
+    <PackageDescription>Entity Framework Core integration for SqlMq. Provides native Transactional Outbox pattern support by automatically enlisting messages into the current DbContext transaction.</PackageDescription>
+    <PackageTags>sqlserver;message-queue;efcore;entity-framework;outbox;dotnet</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/esgaltur/sqlmq-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/esgaltur/sqlmq-dotnet</RepositoryUrl>
   </PropertyGroup>
 

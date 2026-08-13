@@ -12,7 +12,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
+    <Authors>esgaltur</Authors>
+    <Company>esgaltur</Company>
+    <PackageDescription>Dependency injection extensions for SqlMq. Easily configure SqlMq background workers and declarative listeners in your IServiceCollection.</PackageDescription>
+    <PackageTags>sqlserver;message-queue;dependency-injection;dotnet</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/esgaltur/sqlmq-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/esgaltur/sqlmq-dotnet</RepositoryUrl>
   </PropertyGroup>
 
