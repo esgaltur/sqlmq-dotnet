@@ -2,7 +2,7 @@
 
 This document outlines the planned architecture, features, and milestones for the `SqlMq` project targeting .NET 10.
 
-## 🎯 Current Status: v1.0.2 (Stable)
+## 🎯 Current Status: v1.0.3 (Stable)
 The project is currently in the architectural design phase. The core mechanisms rely heavily on `Microsoft.Data.SqlClient` and MS SQL Server's native `READPAST` and `UPDLOCK` hints to provide safe concurrent polling.
 
 ---
